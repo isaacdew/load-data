@@ -1,6 +1,6 @@
 # Introduction
 
-MySQL and MariaDB come equipped with the [LOAD DATA INFILE](https://mariadb.com/kb/en/load-data-infile/) statement which allows for loading large datasets from a CSV or similar file into a table very quickly. This package provides an API for constructing and executing a LOAD DATA INFILE statement in Laravel.
+MySQL and MariaDB come equipped with the [LOAD DATA INFILE](https://mariadb.com/kb/en/load-data-infile/) statement which allows for loading large datasets from a CSV or similar file into a table very quickly. This package provides an API for constructing and executing a `LOAD DATA INFILE` statement in Laravel.
 
 # Examples
 
@@ -114,12 +114,16 @@ LoadData::from(storage_path('path/to/file.csv'))
     ->columns([
         'column_one',
         'column_two',
-        'column_three'
+        'column_three',
         'date_column'
     ])
     ->setColumn('date_column', "STR_TO_DATE(@date_column, '%c/%d/%Y')") // Convert MM/DD/YYYY to a MySQL date
     ->load();
 ```
+
+# Dedicated Database Servers
+
+If your Laravel application is not on the same server as your database, you will have to make sure the [LOAD DATA LOCAL INFILE](https://mariadb.com/kb/en/load-data-infile/#load-data-local-infile) statement is enabled on your database server. This package will automatically use the `LOCAL` keyword if your `DB_HOST` is not set to `127.0.0.1` or `localhost`.
 
 # Note On Security
 

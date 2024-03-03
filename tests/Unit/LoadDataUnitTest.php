@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use InvalidArgumentException;
 use Isaacdew\LoadData\LoadData;
+use Isaacdew\LoadData\LoadDataException;
 use Tests\TestCase;
 use Workbench\App\Models\TestModel;
 
@@ -26,7 +26,7 @@ class LoadDataUnitTest extends TestCase
 
     public function test_it_throw_error_when_attempting_to_use_sets_without_columns()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(LoadDataException::class);
 
         LoadData::from('file.csv')
             ->to('table')

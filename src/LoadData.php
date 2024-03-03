@@ -5,10 +5,15 @@ namespace Isaacdew\LoadData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
+use Isaacdew\LoadData\Concerns\Columns;
+use Isaacdew\LoadData\Concerns\Fields;
+use Isaacdew\LoadData\Concerns\Lines;
+use Isaacdew\LoadData\Concerns\SetStatements;
 
 class LoadData
 {
+    use Columns, Fields, Lines, SetStatements;
+
     protected string $file;
 
     protected bool $ignoreErrors = false;
@@ -17,30 +22,9 @@ class LoadData
 
     protected $characterSet;
 
-    protected array $fields = [
-        'terminatedBy' => null,
-        'enclosedBy' => null,
-        'escapedBy' => null,
-    ];
-
-    protected array $lines = [
-        'startingBy' => null,
-        'terminatedBy' => null,
-    ];
-
-    protected $separator = ',';
-
-    protected $enclosure = '"';
-
-    protected $escape = '\\';
-
     protected $ignoreLines;
 
-    protected $columns = [];
-
-    protected $onlyColumns = [];
-
-    protected $sets = [];
+    protected $truncateBeforeLoad = false;
 
     public function __construct($file)
     {
@@ -105,98 +89,19 @@ class LoadData
         return $this;
     }
 
-    public function fieldsTerminatedBy(string $separator)
+    public function truncateBeforeLoad(bool $bool = true)
     {
-        $this->separator = $separator;
-        $this->fields['terminatedBy'] = "TERMINATED BY '{$separator}'";
-
-        return $this;
-    }
-
-    public function fieldsEnclosedBy(string $enclosure, bool $optionally = false)
-    {
-        $this->enclosure = $enclosure;
-        $this->fields['enclosedBy'] = "ENCLOSED BY '{$enclosure}'";
-
-        if ($optionally) {
-            $this->fields['enclosedBy'] = 'OPTIONALLY '.$this->fields['enclosedBy'];
-        }
-
-        return $this;
-    }
-
-    public function fieldsEscapedBy(string $escape)
-    {
-        $this->escape = $escape;
-        $this->fields['escapedBy'] = "ESCAPED BY '{$escape}'";
-
-        return $this;
-    }
-
-    public function linesStartingBy(string $delimiter)
-    {
-        $this->lines['startingBy'] = "STARTING BY '{$delimiter}'";
-
-        return $this;
-    }
-
-    public function linesTerminatedBy(string $delimiter)
-    {
-        $this->lines['terminatedBy'] = "TERMINATED BY '{$delimiter}'";
-
-        return $this;
-    }
-
-    public function columns(array $columns)
-    {
-        $this->columns = $columns;
-
-        return $this;
-    }
-
-    public function onlyLoadColumns(array $columns)
-    {
-        $this->onlyColumns = $columns;
-
-        return $this;
-    }
-
-    public function setColumns(array $sets)
-    {
-        $this->sets = array_merge($this->sets, $sets);
-
-        return $this;
-    }
-
-    public function setColumn($key, $expression)
-    {
-        $this->sets[$key] = $expression;
-
-        return $this;
-    }
-
-    public function useFileHeaderForColumns()
-    {
-        // Load the first line into memory
-        $file = fopen($this->file, 'r');
-        $firstLine = fgetcsv($file, null, $this->separator, $this->enclosure, $this->escape);
-        fclose($file);
-
-        // Make the headings DB friendly
-        $this->columns = array_map(function ($heading) {
-            // Remove anything in parenthesis
-            $heading = preg_replace('/(\(.*)$/', '', $heading);
-
-            return str()->snake(strtolower($heading));
-        }, $firstLine);
-
-        $this->ignoreHeader();
+        $this->truncateBeforeLoad = $bool;
 
         return $this;
     }
 
     public function load()
     {
+        if ($this->truncateBeforeLoad) {
+            DB::table($this->table)->truncate();
+        }
+
         return DB::statement($this->toSql());
     }
 
@@ -205,7 +110,9 @@ class LoadData
         // Determine if we need the "LOCAL" keyword
         $local = $this->useLocal() ? ' LOCAL' : '';
 
-        $sql = "LOAD DATA{$local} INFILE '{$this->file}'";
+        // Since prepared statements are not supported for LOAD DATA, we use the quote function to escape the filename
+        $escapedFilename = DB::connection()->getPdo()->quote($this->file);
+        $sql = "LOAD DATA{$local} INFILE {$escapedFilename}";
 
         if ($this->ignoreErrors) {
             $sql .= ' IGNORE';
@@ -217,63 +124,19 @@ class LoadData
             $sql .= ' '.$this->characterSet;
         }
 
-        $fields = trim(implode(' ', $this->fields));
-        if (! empty($fields)) {
-            $sql .= ' FIELDS '.$fields;
-        }
+        $sql .= $this->buildFields();
 
-        $lines = trim(implode(' ', $this->lines));
-        if (! empty($lines)) {
-            $sql .= ' LINES '.$lines;
-        }
+        $sql .= $this->buildLines();
 
         if ($this->ignoreLines) {
             $sql .= ' '.$this->ignoreLines;
         }
 
         // Build columns
-        if (! empty($this->columns)) {
-            $onlyColumns = ! empty($this->onlyColumns)
-                ? array_flip($this->onlyColumns)
-                : false;
-
-            $columns = [];
-            foreach ($this->columns as $column) {
-                // Skip columns if not included in the only list, if it exists
-                if ($onlyColumns && ! isset($onlyColumns[$column])) {
-                    $columns[] = '@dummy';
-
-                    continue;
-                }
-
-                // Set column as variable
-                if (isset($this->sets[$column])) {
-                    $columns[] = '@'.$column;
-
-                    continue;
-                }
-
-                $columns[] = $column;
-            }
-
-            $sql .= ' ('.implode(', ', $columns).')';
-        }
+        $sql .= $this->buildColumns();
 
         // Build set statements
-        if (! empty($this->sets)) {
-            // Throw error if sets is set but columns are not
-            if (empty($this->columns)) {
-                // TODO: Use custom exception
-                throw new InvalidArgumentException('Columns must be defined to use the set feature.');
-            }
-
-            $sets = [];
-            foreach ($this->sets as $column => $expression) {
-                $sets[] = "{$column} = {$expression}";
-            }
-
-            $sql .= ' SET '.implode(', ', $sets);
-        }
+        $sql .= $this->buildSetStatements();
 
         return $sql;
     }

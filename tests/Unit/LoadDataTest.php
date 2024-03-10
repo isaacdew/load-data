@@ -15,12 +15,12 @@ class LoadDataTest extends TestCase
     {
         $this->assertEquals(
             "LOAD DATA INFILE 'a-file.csv' INTO TABLE table",
-            LoadData::from('a-file.csv')->to('table')->toSql()
+            LoadData::from('a-file.csv')->to('table')->useLocalKeyword(false)->toSql()
         );
 
         $this->assertEquals(
             "LOAD DATA INFILE 'a-file.csv' INTO TABLE table FIELDS TERMINATED BY '\"'",
-            LoadData::from('a-file.csv')->to('table')->fieldsTerminatedBy('"')->toSql()
+            LoadData::from('a-file.csv')->to('table')->useLocalKeyword(false)->fieldsTerminatedBy('"')->toSql()
         );
     }
 
@@ -38,6 +38,7 @@ class LoadDataTest extends TestCase
     {
         $load = LoadData::from('a-file.csv')
             ->to('table')
+            ->useLocalKeyword(false)
             ->columns([
                 'column_1',
                 'column_2',
@@ -56,6 +57,7 @@ class LoadDataTest extends TestCase
     {
         $load = LoadData::from('a-file.csv')
             ->to('table')
+            ->useLocalKeyword(false)
             ->fieldsTerminatedBy(',')
             ->fieldsEnclosedBy('"')
             ->fieldsEscapedBy('\\');
@@ -79,6 +81,7 @@ class LoadDataTest extends TestCase
     {
         $load = LoadData::from('a-file.csv')
             ->to('table')
+            ->useLocalKeyword(false)
             ->linesStartingBy('"')
             ->linesTerminatedBy("\n");
 

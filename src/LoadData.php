@@ -56,7 +56,7 @@ class LoadData
         return $this;
     }
 
-    protected function useLocal($useLocal = true)
+    public function useLocalKeyword($useLocal = true)
     {
         $this->useLocalKeyword = $useLocal;
 

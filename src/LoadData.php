@@ -26,7 +26,7 @@ class LoadData
 
     protected $truncateBeforeLoad = false;
 
-    protected $useLocalKeyword = false;
+    protected $useLocalKeyword;
 
     public function __construct($file)
     {

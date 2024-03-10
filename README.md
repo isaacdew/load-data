@@ -102,7 +102,7 @@ LoadData::from(storage_path('path/to/file.csv'))
 ```
 ## Using Set Statements
 
-To use this feature, you must define the columns first. Then you can modify the value from your CSV using a MySQL expression. A good use case is date column where the CSV isn't using a MySQL friendly format. Note that you must prefix the column name with `@` to use it in your expression.
+To use this feature, you must define the columns first either with the `columns` method or by using the file header with the `useFileHeaderForColumns` method. Then you can modify the value from your CSV using a MySQL expression. A good use case is a date column where the CSV isn't using a MySQL friendly format. Note that you must prefix the column name with `@` to use it in your expression.
 
 ```php
 use Isaacdew\LoadData\LoadData;

@@ -26,6 +26,8 @@ class LoadData
 
     protected $truncateBeforeLoad = false;
 
+    protected $useLocalKeyword = false;
+
     public function __construct($file)
     {
         $this->file = $file instanceof File
@@ -54,11 +56,11 @@ class LoadData
         return $this;
     }
 
-    protected function useLocal()
+    protected function useLocal($useLocal = true)
     {
-        $host = env('DB_HOST');
+        $this->useLocalKeyword = $useLocal;
 
-        return $host !== '127.0.0.1' && $host !== 'localhost';
+        return $this;
     }
 
     public function ignoreErrors(bool $bool = true)
@@ -107,6 +109,9 @@ class LoadData
 
     public function toSql()
     {
+        $host = env('DB_HOST');
+        $this->useLocalKeyword ??= ($host !== '127.0.0.1' && $host !== 'localhost') || env('USING_DOCKER');
+
         // Determine if we need the "LOCAL" keyword
         $local = $this->useLocal() ? ' LOCAL' : '';
 

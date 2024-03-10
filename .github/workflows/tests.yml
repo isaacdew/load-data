@@ -28,5 +28,7 @@ jobs:
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
+        env:
+          USING_DOCKER: true
         run: ./vendor/bin/phpunit --stop-on-failure
       

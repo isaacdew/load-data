@@ -87,4 +87,26 @@ class LoadDataTest extends TestCase
         // Assert that the table has no records
         $this->assertDatabaseEmpty('test_models');
     }
+
+    public function test_it_ignores_columns_when_using_only_columns()
+    {
+        $file = workbench_path('storage/app/test.csv');
+
+        $result = LoadData::from($file)
+            ->to(TestModel::class)
+            ->fieldsTerminatedBy(',')
+            ->fieldsEnclosedBy('"', true)
+            ->useFileHeaderForColumns()
+            ->onlyLoadColumns([
+                'column_two'
+            ])
+            ->load();
+
+        $this->assertTrue($result);
+
+        $this->assertDatabaseHas('test_models', [
+            'column_one' => null,
+            'column_two' => 'value',
+        ]);
+    }
 }

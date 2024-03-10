@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('test_models', function (Blueprint $table) {
             $table->id();
-            $table->string('column_one');
-            $table->string('column_two');
+            $table->string('column_one')
+                ->nullable();
+            $table->string('column_two')
+                ->nullable();
             $table->timestamps();
         });
     }

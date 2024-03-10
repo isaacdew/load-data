@@ -98,7 +98,7 @@ class LoadDataTest extends TestCase
             ->fieldsEnclosedBy('"', true)
             ->useFileHeaderForColumns()
             ->onlyLoadColumns([
-                'column_two'
+                'column_two',
             ])
             ->load();
 

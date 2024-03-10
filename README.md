@@ -123,7 +123,38 @@ LoadData::from(storage_path('path/to/file.csv'))
 
 # Dedicated Database Servers
 
-If your Laravel application is not on the same server as your database, you will have to make sure the [LOAD DATA LOCAL INFILE](https://mariadb.com/kb/en/load-data-infile/#load-data-local-infile) statement is enabled on your database server. This package will automatically use the `LOCAL` keyword if your `DB_HOST` is not set to `127.0.0.1` or `localhost`.
+If your Laravel application is not on the same server as your database, you will have to make sure the [LOAD DATA LOCAL INFILE](https://mariadb.com/kb/en/load-data-infile/#load-data-local-infile) statement is enabled on your database server and in PDO. This package will automatically use the `LOCAL` keyword if your `DB_HOST` is not set to `127.0.0.1` or `localhost`.
+
+To enable `LOAD DATA LOCAL INFILE` in PDO, go to your `config/database.php` file and add `PDO::MYSQL_ATTR_LOCAL_INFILE => true` to the array of options for the `mysql` connection like so:
+
+```php
+return [
+    'connections' => [
+        //...
+        'mysql' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_LOCAL_INFILE => true // Add this line!
+            ]) : [],
+        ],
+        //...
+    ]
+];
+```
 
 # Note On Security
 

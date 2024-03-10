@@ -15,7 +15,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $app['config']->set('database.default', 'mysql');
 
         $app['config']->set('database.connections.mysql.options', [
-            PDO::MYSQL_ATTR_LOCAL_INFILE => true
+            PDO::MYSQL_ATTR_LOCAL_INFILE => true,
         ]);
     }
 

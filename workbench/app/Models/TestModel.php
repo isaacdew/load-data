@@ -10,6 +10,8 @@ class TestModel extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected static function newFactory()
     {
         return new TestModelFactory();

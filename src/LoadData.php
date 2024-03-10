@@ -113,7 +113,7 @@ class LoadData
         $this->useLocalKeyword ??= ($host !== '127.0.0.1' && $host !== 'localhost') || env('USING_DOCKER');
 
         // Determine if we need the "LOCAL" keyword
-        $local = $this->useLocal() ? ' LOCAL' : '';
+        $local = $this->useLocalKeyword ? ' LOCAL' : '';
 
         // Since prepared statements are not supported for LOAD DATA, we use the quote function to escape the filename
         $escapedFilename = DB::connection()->getPdo()->quote($this->file);

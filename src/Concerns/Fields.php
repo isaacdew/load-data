@@ -19,7 +19,9 @@ trait Fields
     public function fieldsTerminatedBy(string $separator)
     {
         $this->separator = $separator;
-        $this->fields['terminatedBy'] = "TERMINATED BY '{$separator}'";
+
+        $separator = $this->escape($separator);
+        $this->fields['terminatedBy'] = "TERMINATED BY {$separator}";
 
         return $this;
     }
@@ -27,7 +29,9 @@ trait Fields
     public function fieldsEnclosedBy(string $enclosure, bool $optionally = false)
     {
         $this->enclosure = $enclosure;
-        $this->fields['enclosedBy'] = "ENCLOSED BY '{$enclosure}'";
+
+        $enclosure = $this->escape($enclosure);
+        $this->fields['enclosedBy'] = "ENCLOSED BY {$enclosure}";
 
         if ($optionally) {
             $this->fields['enclosedBy'] = 'OPTIONALLY '.$this->fields['enclosedBy'];
@@ -39,7 +43,9 @@ trait Fields
     public function fieldsEscapedBy(string $escape)
     {
         $this->escape = $escape;
-        $this->fields['escapedBy'] = "ESCAPED BY '{$escape}'";
+
+        $escape = $this->escape($escape);
+        $this->fields['escapedBy'] = "ESCAPED BY {$escape}";
 
         return $this;
     }

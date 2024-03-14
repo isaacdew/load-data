@@ -23,4 +23,25 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         $this->loadMigrationsFrom(workbench_path('database/migrations'));
     }
+
+    protected function assertStringEqualsIgnoringSlashes(string $expected, string $actual)
+    {
+        // Ignore slashes
+        $expected = trim(json_encode(
+            $expected,
+            JSON_UNESCAPED_SLASHES
+        ), '"');
+
+        $message = "Failed asserting that two strings are equal.
+        --- Expected
+        +++ Actual
+        @@ @@
+        -'{$expected}'
+        +'{$actual}'";
+
+        $this->assertTrue(
+            $expected === $actual,
+            $message
+        );
+    }
 }

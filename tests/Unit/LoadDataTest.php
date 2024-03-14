@@ -19,7 +19,7 @@ class LoadDataTest extends TestCase
         );
 
         $this->assertEquals(
-            "LOAD DATA INFILE 'a-file.csv' INTO TABLE table FIELDS TERMINATED BY '\"'",
+            "LOAD DATA INFILE 'a-file.csv' INTO TABLE table FIELDS TERMINATED BY '\\\"'",
             LoadData::from('a-file.csv')->to('table')->useLocalKeyword(false)->fieldsTerminatedBy('"')->toSql()
         );
     }
@@ -62,7 +62,7 @@ class LoadDataTest extends TestCase
             ->fieldsEnclosedBy('"')
             ->fieldsEscapedBy('\\');
 
-        $this->assertEquals(
+        $this->assertStringEqualsIgnoringSlashes(
             "LOAD DATA INFILE 'a-file.csv' INTO TABLE table FIELDS TERMINATED BY ',' ENCLOSED BY '\"' ESCAPED BY '\\'",
             $load->toSql()
         );
@@ -71,7 +71,7 @@ class LoadDataTest extends TestCase
         $load
             ->fieldsEnclosedBy('"', optionally: true);
 
-        $this->assertEquals(
+        $this->assertStringEqualsIgnoringSlashes(
             "LOAD DATA INFILE 'a-file.csv' INTO TABLE table FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' ESCAPED BY '\\'",
             $load->toSql()
         );
@@ -85,7 +85,7 @@ class LoadDataTest extends TestCase
             ->linesStartingBy('"')
             ->linesTerminatedBy("\n");
 
-        $this->assertEquals(
+        $this->assertStringEqualsIgnoringSlashes(
             "LOAD DATA INFILE 'a-file.csv' INTO TABLE table LINES STARTING BY '\"' TERMINATED BY '\n'",
             $load->toSql()
         );

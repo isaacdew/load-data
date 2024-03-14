@@ -9,10 +9,13 @@ use Isaacdew\LoadData\Concerns\Columns;
 use Isaacdew\LoadData\Concerns\Fields;
 use Isaacdew\LoadData\Concerns\Lines;
 use Isaacdew\LoadData\Concerns\SetStatements;
+use PDO;
 
 class LoadData
 {
     use Columns, Fields, Lines, SetStatements;
+
+    protected PDO $pdo;
 
     protected string $file;
 
@@ -33,6 +36,8 @@ class LoadData
         $this->file = $file instanceof File
             ? $file->path()
             : $file;
+
+        $this->pdo = DB::connection()->getPdo();
     }
 
     /**
@@ -144,5 +149,10 @@ class LoadData
         $sql .= $this->buildSetStatements();
 
         return $sql;
+    }
+
+    protected function escape($value)
+    {
+        return $this->pdo->quote($value);
     }
 }

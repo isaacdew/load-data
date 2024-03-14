@@ -11,14 +11,18 @@ trait Lines
 
     public function linesStartingBy(string $delimiter)
     {
-        $this->lines['startingBy'] = "STARTING BY '{$delimiter}'";
+        $delimiter = $this->escape($delimiter);
+
+        $this->lines['startingBy'] = "STARTING BY {$delimiter}";
 
         return $this;
     }
 
     public function linesTerminatedBy(string $delimiter)
     {
-        $this->lines['terminatedBy'] = "TERMINATED BY '{$delimiter}'";
+
+        $delimiter = $this->escape($delimiter);
+        $this->lines['terminatedBy'] = "TERMINATED BY {$delimiter}";
 
         return $this;
     }

@@ -150,9 +150,4 @@ class LoadData
 
         return $sql;
     }
-
-    protected function escape($value)
-    {
-        return $this->pdo->quote($value);
-    }
 }

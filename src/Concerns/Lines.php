@@ -11,7 +11,7 @@ trait Lines
 
     public function linesStartingBy(string $delimiter)
     {
-        $delimiter = $this->escape($delimiter);
+        $delimiter = $this->pdo->quote($delimiter);
 
         $this->lines['startingBy'] = "STARTING BY {$delimiter}";
 
@@ -21,7 +21,7 @@ trait Lines
     public function linesTerminatedBy(string $delimiter)
     {
 
-        $delimiter = $this->escape($delimiter);
+        $delimiter = $this->pdo->quote($delimiter);
         $this->lines['terminatedBy'] = "TERMINATED BY {$delimiter}";
 
         return $this;

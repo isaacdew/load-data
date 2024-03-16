@@ -20,7 +20,7 @@ trait Fields
     {
         $this->separator = $separator;
 
-        $separator = $this->escape($separator);
+        $separator = $this->pdo->quote($separator);
         $this->fields['terminatedBy'] = "TERMINATED BY {$separator}";
 
         return $this;
@@ -30,7 +30,7 @@ trait Fields
     {
         $this->enclosure = $enclosure;
 
-        $enclosure = $this->escape($enclosure);
+        $enclosure = $this->pdo->quote($enclosure);
         $this->fields['enclosedBy'] = "ENCLOSED BY {$enclosure}";
 
         if ($optionally) {
@@ -44,7 +44,7 @@ trait Fields
     {
         $this->escape = $escape;
 
-        $escape = $this->escape($escape);
+        $escape = $this->pdo->quote($escape);
         $this->fields['escapedBy'] = "ESCAPED BY {$escape}";
 
         return $this;

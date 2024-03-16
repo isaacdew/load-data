@@ -2,6 +2,12 @@
 
 MySQL and MariaDB come equipped with the [LOAD DATA INFILE](https://mariadb.com/kb/en/load-data-infile/) statement which allows for loading large datasets from a CSV or similar file into a table very quickly. This package provides an API for constructing and executing a `LOAD DATA INFILE` statement in Laravel.
 
+# Installation
+
+Install this package using composer:
+
+`composer require isaacdew/load-data`
+
 # Examples
 
 ## Basic Example
